@@ -29,7 +29,7 @@ jobs:
         sed -i '2i remove [find list="level1"]' processed_ips.txt
 
     - name: Rename to RSC
-      run: mv processed_ips.txt processed_ips.rsc
+      run: mv processed_ips.txt ftaeftgegt.rsc
 
     - name: Save and Commit Processed File
       run: |
