@@ -1,8 +1,8 @@
-name: IP地址处理
+name: Breadcrumbsftaeftgegt
 
 on:
   schedule:
-    - cron: '0 * * * *'  # 每小时执行一次
+    - cron: '0,30 * * * *'  # 每小时执行一次
   workflow_dispatch:  # 手动触发工作流
 
 env:
@@ -28,10 +28,13 @@ jobs:
         sed -i '1i /ip firewall address-list' processed_ips.txt
         sed -i '2i remove [find list="level1"]' processed_ips.txt
 
+    - name: Rename to RSC
+      run: mv processed_ips.txt processed_ips.rsc
+
     - name: Save and Commit Processed File
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git add processed_ips.txt
+        git add processed_ips.rsc
         git commit -m "Processed IP addresses on $(date +'%Y-%m-%d %H:%M:%S')"
         git push
