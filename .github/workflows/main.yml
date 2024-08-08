@@ -15,13 +15,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Pull Latest Changes
+      run: git pull origin main --rebase
+
     - name: Download TXT File
       run: |
         wget -O ip_addresses.txt https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level1.netset
 
     - name: Process IP Addresses
       run: |
-        # 保留符合IPv4格式的行，并对行进行处理
         grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(/[0-9]+)?$' ip_addresses.txt > processed_ips.txt
         sed -i 's/^/add list="level1" address="/' processed_ips.txt
         sed -i 's/$/"/' processed_ips.txt
@@ -36,5 +38,5 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add ftaeftgegt.rsc
-        git commit -m "Processed IP addresses on $(date +'%Y-%m-%d %H:%M:%S')"
-        git push
+        git commit -m "Processed IP addresses on $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+        git push || echo "Nothing to push"
