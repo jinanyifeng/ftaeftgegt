@@ -1,0 +1,112 @@
+name: Breadcrumbsftaeftgegt
+
+on:
+  schedule:
+    - cron: '0,30 * * * *'
+  workflow_dispatch:  
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  process-ip-addresses:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: GetTime
+      run: echo "DATE=$(date +'%Y-%m-%d %H:%M:%S CST')" >> $GITHUB_ENV
+
+
+    - name: Download TXT File
+      run: |
+        rm -f ip1_addresses && wget -O ip1_addresses.txt https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level1.netset || true
+        rm -f ip2_addresses && wget -O ip2_addresses.txt https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset || true
+        rm -f ip3_addresses && wget -O ip3_addresses.txt https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level3.netset || true
+        rm -f ip4_addresses && wget -O ip4_addresses.txt https://blackip.ustc.edu.cn/list.php?txt || true
+        rm -f ip5_addresses && wget -O ip5_addresses.txt https://gaoyifan.github.io/china-operator-ip/china.txt || true
+        rm -f ip6_addresses && wget -O ip6_addresses.txt https://gaoyifan.github.io/china-operator-ip/china6.txt || true
+        rm -f ip7_addresses && wget -O ip7_addresses.txt https://raw.githubusercontent.com/firehol/blocklist-ipsets/refs/heads/master/firehol_level4.netset || true
+
+    - name: ftaeftgegt
+      run: |
+        rm -f ftaeftgegt1.rsc
+        grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})?$' ip1_addresses.txt > ftaeftgegt1.rsc
+        sed -i 's/^/:do { add address=/' ftaeftgegt1.rsc
+        sed -i 's/$/ list=level1 } on-error={}/' ftaeftgegt1.rsc
+        sed -i '1i /ip firewall address-list remove [/ip firewall address-list find list=level1]' ftaeftgegt1.rsc
+        sed -i '2i /ip firewall address-list' ftaeftgegt1.rsc
+        rm -f ip1_addresses.txt
+
+        rm -f ftaeftgegt2.rsc
+        grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})?$' ip2_addresses.txt > ftaeftgegt2.rsc
+        sed -i 's/^/:do { add address=/' ftaeftgegt2.rsc
+        sed -i 's/$/ list=level2 } on-error={}/' ftaeftgegt2.rsc
+        sed -i '1i /ip firewall address-list remove [/ip firewall address-list find list=level2]' ftaeftgegt2.rsc
+        sed -i '2i /ip firewall address-list' ftaeftgegt2.rsc
+        rm -f ip2_addresses.txt
+
+        rm -f ftaeftgegt3.rsc
+        grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})?$' ip3_addresses.txt > ftaeftgegt3.rsc
+        sed -i 's/^/:do { add address=/' ftaeftgegt3.rsc
+        sed -i 's/$/ list=level3 } on-error={}/' ftaeftgegt3.rsc
+        sed -i '1i /ip firewall address-list remove [/ip firewall address-list find list=level3]' ftaeftgegt3.rsc
+        sed -i '2i /ip firewall address-list' ftaeftgegt3.rsc
+        rm -f ip3_addresses.txt	
+
+        rm -f ftaeftgegt4.rsc
+        grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})?$' ip4_addresses.txt > ftaeftgegt4.rsc
+        sed -i 's/^/:do { add address=/' ftaeftgegt4.rsc
+        sed -i 's/$/ list=Block } on-error={}/' ftaeftgegt4.rsc
+        sed -i '1i /ip firewall address-list remove [/ip firewall address-list find list=Block]' ftaeftgegt4.rsc
+        sed -i '2i /ip firewall address-list' ftaeftgegt4.rsc
+
+        rm -f ftaeftgegt5.rsc
+        grep -E '^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}(/[0-9]{1,3})?$' ip4_addresses.txt > ftaeftgegt5.rsc
+        sed -i 's/^/:do { add address=/' ftaeftgegt5.rsc
+        sed -i 's/$/ list=Block } on-error={}/' ftaeftgegt5.rsc
+        sed -i '1i /ipv6 firewall address-list remove [/ipv6 firewall address-list find list=Block]' ftaeftgegt5.rsc
+        sed -i '2i /ipv6 firewall address-list' ftaeftgegt5.rsc
+        rm -f ip4_addresses.txt
+
+
+        rm -f ftaeftgegt6.rsc
+        grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})?$' ip5_addresses.txt > ftaeftgegt6.rsc
+        sed -i 's/^/:do { add address=/' ftaeftgegt6.rsc
+        sed -i 's/$/ list=CN } on-error={}/' ftaeftgegt6.rsc
+        sed -i '1i /ip firewall address-list remove [/ip firewall address-list find list=CN]' ftaeftgegt6.rsc
+        sed -i '2i /ip firewall address-list' ftaeftgegt6.rsc
+        sed -i '3i :do { add address=192.168.0.0/16 list=CN } on-error={}' ftaeftgegt6.rsc
+        sed -i '4i :do { add address=10.0.0.0/8 list=CN } on-error={}' ftaeftgegt6.rsc
+        sed -i '5i :do { add address=172.16.0.0/12 list=CN } on-error={}' ftaeftgegt6.rsc
+        rm -f ip5_addresses.txt
+
+        rm -f ftaeftgegt7.rsc
+        grep -E '^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}(/[0-9]{1,3})?$' ip6_addresses.txt > ftaeftgegt7.rsc
+        sed -i 's/^/:do { add address=/' ftaeftgegt7.rsc
+        sed -i 's/$/ list=CN } on-error={}/' ftaeftgegt7.rsc
+        sed -i '1i /ipv6 firewall address-list remove [/ipv6 firewall address-list find list=CN]' ftaeftgegt7.rsc
+        sed -i '2i /ipv6 firewall address-list' ftaeftgegt7.rsc
+        rm -f ip6_addresses.txt
+
+        rm -f ftaeftgegt8.rsc
+        grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})?$' ip7_addresses.txt > ftaeftgegt8.rsc
+        sed -i 's/^/:do { add address=/' ftaeftgegt8.rsc
+        sed -i 's/$/ list=level4 } on-error={}/' ftaeftgegt8.rsc
+        sed -i '1i /ip firewall address-list remove [/ip firewall address-list find list=level4]' ftaeftgegt8.rsc
+        sed -i '2i /ip firewall address-list' ftaeftgegt8.rsc
+        rm -f ip7_addresses.txt
+
+    - name: Save and Commit Processed File
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git checkout --orphan latest_branch
+        git add -A
+        git commit -am "$DATE"
+        git branch -D main
+        git branch -m main
+
+    - name: Push
+      run: git push -f origin main
